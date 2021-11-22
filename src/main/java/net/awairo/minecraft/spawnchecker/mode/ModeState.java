@@ -191,8 +191,9 @@ public class ModeState {
     }
 
     public void renderMarkers(WorldRenderer worldRenderer, float partialTicks, MatrixStack matrixStack) {
-        if (worldClientNotLoaded())
+        if (worldClientNotLoaded()) {
             return;
+        }
 
         var renderer = new MyMarkerRendererImpl(
             worldRenderer,

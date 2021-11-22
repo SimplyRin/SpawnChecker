@@ -22,6 +22,7 @@ package net.awairo.minecraft.spawnchecker.mode.marker.model;
 import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
@@ -77,7 +78,7 @@ public class SpawnPointModel implements MarkerModel {
 
         renderer.bindTexture(texture);
 
-        renderer.begin(GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE);
+        renderer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE); // GL_QUADS
 
         float minU = 0.0f;
         float maxU = 0.5f;

@@ -49,7 +49,6 @@ public final class SpawnCheckerKeyBinding extends KeyBinding {
     private long lastCountedUpTime = 0L;
 
     private SpawnCheckerKeyBinding(@NonNull KeyBindingState state, @NonNull String description, @NonNull KeyModifier keyModifier, int keyCode, int ordinal) {
-        // super(description, SpawnCheckerKeyConflictContext.INSTANCE,keyModifier, InputUtil.Type.KEYSYM, keyCode, CATEGORY);
         super(description, keyCode, CATEGORY);
         this.state = state;
         this.ordinal = ordinal;

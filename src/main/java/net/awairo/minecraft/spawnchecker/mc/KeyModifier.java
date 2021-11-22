@@ -25,7 +25,7 @@ public enum KeyModifier {
 
         public BaseText getCombinedName(InputUtil.Key key, Supplier<BaseText> defaultLogic) {
             String localizationFormatKey = MinecraftClient.IS_SYSTEM_MAC ? "forge.controlsgui.control.mac" : "forge.controlsgui.control";
-            return (BaseText) new TranslatableText(localizationFormatKey, new Object[] { defaultLogic.get() });
+            return new TranslatableText(localizationFormatKey, new Object[] { defaultLogic.get() });
         }
     },
     SHIFT {
@@ -38,7 +38,7 @@ public enum KeyModifier {
         }
 
         public BaseText getCombinedName(InputUtil.Key key, Supplier<BaseText> defaultLogic) {
-            return (BaseText) new TranslatableText("forge.controlsgui.shift", new Object[] { defaultLogic.get() });
+            return new TranslatableText("forge.controlsgui.shift", new Object[] { defaultLogic.get() });
         }
     },
     ALT {
@@ -51,7 +51,7 @@ public enum KeyModifier {
         }
 
         public BaseText getCombinedName(InputUtil.Key keyCode, Supplier<BaseText> defaultLogic) {
-            return (BaseText) new TranslatableText("forge.controlsgui.alt", new Object[] { defaultLogic.get() });
+            return new TranslatableText("forge.controlsgui.alt", new Object[] { defaultLogic.get() });
         }
     },
     NONE {

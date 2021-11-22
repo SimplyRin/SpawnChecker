@@ -74,47 +74,48 @@ final class SpawnCheckerState {
     }
 
     void initialize() {
-        modeState.initialize();
+        this.modeState.initialize();
     }
 
     void loadWorld(WorldAccess world) {
         if (world instanceof ClientWorld) {
-            loadedWorldClient.add(world);
-            modeState.loadWorldClient((ClientWorld) world);
+            this.loadedWorldClient.add(world);
+            this.modeState.loadWorldClient((ClientWorld) world);
         }
     }
 
     void unloadWorld(WorldAccess world) {
         if (world instanceof ClientWorld) {
-            modeState.unloadWorldClient((ClientWorld) world);
-            loadedWorldClient.remove(world);
+            this.modeState.unloadWorldClient((ClientWorld) world);
+            this.loadedWorldClient.remove(world);
         }
     }
 
     void onTickStart() {
         if (player != minecraft.player) {
-            player = minecraft.player;
-            if (player != null)
-                commands.registerTo(player);
+            this.player = minecraft.player;
+            if (player != null) {
+                this.commands.registerTo(this.player);
+            }
         }
     }
 
     void onTickEnd() {
         var nowMilliTime = Util.getEpochTimeMs();
-        tickCount++;
-        keyBindingStates.onTick(nowMilliTime);
-        modeState.onTick(tickCount, nowMilliTime);
+        this.tickCount++;
+        this.keyBindingStates.onTick(nowMilliTime);
+        this.modeState.onTick(this.tickCount, nowMilliTime);
     }
 
     boolean started() {
-        return enabled() && !loadedWorldClient.isEmpty();
+        return enabled() && !this.loadedWorldClient.isEmpty();
     }
 
     private boolean enabled() {
-        return config.enabled();
+        return this.config.enabled();
     }
 
     void renderHud(float partialTicks) {
-        hudRenderer.render(tickCount, partialTicks);
+        this.hudRenderer.render(this.tickCount, partialTicks);
     }
 }

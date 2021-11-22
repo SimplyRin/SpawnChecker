@@ -36,45 +36,12 @@ public interface Renderer {
         return tessellator().getBuffer();
     }
 
-    default void beginPoints(VertexFormat format) {
-        begin(GL11.GL_POINT, format);
-    }
-
-    default void beginLines(VertexFormat format) {
-        begin(GL11.GL_LINES, format);
-    }
-
-    default void beginLineLoop(VertexFormat format) {
-        begin(GL11.GL_LINE_LOOP, format);
-    }
-
-    default void beginTriangles(VertexFormat format) {
-        begin(GL11.GL_TRIANGLES, format);
-    }
-
-    default void beginTriangleStrip(VertexFormat format) {
-        begin(GL11.GL_TRIANGLE_STRIP, format);
-    }
-
-    default void beginTriangleFan(VertexFormat format) {
-        begin(GL11.GL_TRIANGLE_FAN, format);
-    }
-
     default void beginQuads(VertexFormat format) {
-        begin(GL11.GL_QUADS, format);
+        begin(VertexFormat.DrawMode.QUADS, format);
     }
 
-    default void beginQuadStrip(VertexFormat format) {
-        begin(GL11.GL_QUAD_STRIP, format);
-    }
-
-    default void beginPolygon(VertexFormat format) {
-        begin(GL11.GL_POLYGON, format);
-    }
-
-    default void begin(int glMode, VertexFormat format) {
-        // buffer().begin(glMode, format);
-        buffer().begin(VertexFormat.DrawMode.LINES, format);
+    default void begin(VertexFormat.DrawMode drawMode, VertexFormat format) {
+        buffer().begin(drawMode, format);
     }
 
     void addVertex(double x, double y, double z);

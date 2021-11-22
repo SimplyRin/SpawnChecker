@@ -82,29 +82,15 @@ public class SpawnChecker implements ModInitializer {
 
         // register events
 
-        // ModLoadingContext.get().registerConfig(Type.CLIENT, configSpec);
-
         // region Add event listeners
         // Mod lifecycle events
         for (KeyBinding keyBinding : this.state.keyBindingStates().bindings()) {
             KeyBindingHelper.registerKeyBinding(keyBinding);
         }
 
-        // World load/unload
-        // forgeBus.addListener(this::onWorldLoad);
-        // forgeBus.addListener(this::onWorldUnload);
-
-        // GUI connecting hook
-
         // Tick events
         ClientTickEvents.START_CLIENT_TICK.register(this::onStartClientTick);
         ClientTickEvents.END_CLIENT_TICK.register(this::onEndClientTick);
-
-        // ClientTickEvents.START_WORLD_TICK.register(this::onRenderTick);
-        // ClientTickEvents.END_WORLD_TICK.register(this::onRenderWorldLast);
-        // forgeBus.addListener(this::onRenderTick);
-        // forgeBus.addListener(this::onRenderWorldLast);
-        // endregion
 
         System.out.println("SpawnChecker initialized.");
     }

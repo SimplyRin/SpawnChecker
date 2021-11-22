@@ -32,7 +32,6 @@ import net.awairo.minecraft.spawnchecker.SpawnChecker;
 import net.awairo.minecraft.spawnchecker.api.Color;
 import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
 import net.awairo.minecraft.spawnchecker.mode.marker.model.SpawnPointModel;
-import net.awairo.minecraft.spawnchecker.mc.SCRenderSystem;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -116,7 +115,7 @@ public class SpawnPointMarker implements Marker {
         var viewerPos = renderer.renderManager().camera;
         renderer.push();
         {
-            color.setToColor4F(SCRenderSystem::color4f);
+            color.setToColor4F(RenderSystem::setShaderColor);
             renderer.translate(
                 ((double) pos.getX()) - viewerPos.getBlockPos().getX(),
                 ((double) pos.getY()) - viewerPos.getBlockPos().getY() - 1d, // 1ブロック下げる
@@ -132,7 +131,7 @@ public class SpawnPointMarker implements Marker {
 
         renderer.push();
         {
-            color.setToColor4F(SCRenderSystem::color4f);
+            color.setToColor4F(RenderSystem::setShaderColor);
             renderer.translate(
                 ((double) pos.getX()) - viewerPos.getBlockPos().getX(),
                 ((double) pos.getY()) - viewerPos.getBlockPos().getY(),

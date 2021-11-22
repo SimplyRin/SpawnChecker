@@ -21,6 +21,7 @@ package net.awairo.minecraft.spawnchecker.mode.marker.model;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import org.lwjgl.opengl.GL11;
 
@@ -37,7 +38,7 @@ public class GuidelineModel implements MarkerModel {
             GlStateManager.SrcFactor.ONE.value, GlStateManager.DstFactor.ZERO.value
         );
 
-        renderer.begin(GL11.GL_LINES, VertexFormats.POSITION);
+        renderer.begin(VertexFormat.DrawMode.LINES, VertexFormats.POSITION); // GL_LINES
 
         renderer.addVertex(0.5d, 0d, 0.5d);
         renderer.addVertex(0.5d, 32d, 0.5d);
