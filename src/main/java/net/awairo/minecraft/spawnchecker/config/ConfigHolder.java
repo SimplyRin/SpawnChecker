@@ -27,13 +27,23 @@ import net.md_5.bungee.config.Configuration;
 
 import java.io.File;
 
-@RequiredArgsConstructor
 public final class ConfigHolder {
 
     private final File file;
 
     @Getter
     private Configuration config;
+
+    public ConfigHolder(File file) {
+        this.file = file;
+
+        if (!this.file.exists()) {
+            try {
+                this.file.createNewFile();
+            } catch (Exception e) {
+            }
+        }
+    }
 
     public Configuration loadConfig() {
         if (this.config == null) {

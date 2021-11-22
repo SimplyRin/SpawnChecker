@@ -20,85 +20,96 @@
 package net.awairo.minecraft.spawnchecker;
 
 import lombok.Getter;
+import net.awairo.minecraft.spawnchecker.api.Mode;
+import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 
 import net.awairo.minecraft.spawnchecker.config.ConfigHolder;
 import net.awairo.minecraft.spawnchecker.mode.SpawnCheckMode;
 
-import lombok.extern.log4j.Log4j2;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.File;
 
 @Getter
-@Log4j2
 // @Mod(SpawnChecker.MOD_ID)
-public class SpawnChecker {
+public class SpawnChecker implements ModInitializer {
 
     @Getter
     private static SpawnChecker instance;
 
     public static final String MOD_ID = "spawnchecker";
 
-    private final WrappedProfiler profiler;
-    private final ConfigHolder configHolder;
-    private final SpawnCheckerState state;
+    private WrappedProfiler profiler;
+    private ConfigHolder configHolder;
+    private SpawnCheckerConfig config;
+    private SpawnCheckerState state;
 
     private File configFile;
 
-    public SpawnChecker() {
+    @Override
+    public void onInitialize() {
+        System.out.println("SpawnChecker initializing...");
+
         instance = this;
 
-        File folder = new File("config");
+        var folder = new File("config");
+        folder.mkdirs();
         this.configFile = new File(folder, "config.yml");
-
-        log.info("SpawnChecker initializing.");
 
         var minecraft = MinecraftClient.getInstance();
         this.profiler = new WrappedProfiler(minecraft.getProfiler());
 
         this.configHolder = new ConfigHolder(configFile);
+        this.configHolder.loadConfig();
 
-        this.state = new SpawnCheckerState(minecraft, config);
+        this.config = new SpawnCheckerConfig(this.configHolder);
 
-        this.state.modeState()
-            .add(new SpawnCheckMode(config.presetModeConfig()));
+        this.state = new SpawnCheckerState(minecraft, this.config);
+        this.state.modeState().add(new SpawnCheckMode(config.presetModeConfig()));
+        this.state.initialize();
         // FIXME: not implemented X(
         //            .add(new SlimeCheckMode())
         //            .add(new SpawnerVisualizerMode());
 
         // register events
 
-        ModLoadingContext.get()
-            .registerConfig(Type.CLIENT, configSpec);
+        // ModLoadingContext.get().registerConfig(Type.CLIENT, configSpec);
 
         // region Add event listeners
         // Mod lifecycle events
-        modBus.addListener(this::onFMLClientSetup);
+        for (KeyBinding keyBinding : this.state.keyBindingStates().bindings()) {
+            KeyBindingHelper.registerKeyBinding(keyBinding);
+        }
 
         // World load/unload
-        forgeBus.addListener(this::onWorldLoad);
-        forgeBus.addListener(this::onWorldUnload);
+        // forgeBus.addListener(this::onWorldLoad);
+        // forgeBus.addListener(this::onWorldUnload);
 
         // GUI connecting hook
-        forgeBus.addListener(this::onGuiOpenEvent);
 
         // Tick events
-        forgeBus.addListener(this::onClientTick);
-        forgeBus.addListener(this::onRenderTick);
-        forgeBus.addListener(this::onRenderWorldLast);
+        ClientTickEvents.START_CLIENT_TICK.register(this::onStartClientTick);
+        ClientTickEvents.END_CLIENT_TICK.register(this::onEndClientTick);
+
+        // ClientTickEvents.START_WORLD_TICK.register(this::onRenderTick);
+        // ClientTickEvents.END_WORLD_TICK.register(this::onRenderWorldLast);
+        // forgeBus.addListener(this::onRenderTick);
+        // forgeBus.addListener(this::onRenderWorldLast);
         // endregion
 
-        log.info("SpawnChecker initialized.");
+        System.out.println("SpawnChecker initialized.");
     }
 
     // region [FML] Mod lifecycle events
-
-    private void onFMLClientSetup(FMLClientSetupEvent event) {
-        log.info("[spawnchecker] onFMLClientSetup({})", event);
-        this.state.keyBindingStates().bindings()
-            .forEach(ClientRegistry::registerKeyBinding);
-    }
 
     // endregion
 
@@ -108,52 +119,51 @@ public class SpawnChecker {
 
     // region [Forge] World events
 
-    public void onGuiOpenEvent(String message, CallbackInfo info) {
+    public void onClientChat(String message, CallbackInfo info) {
         if (!message.startsWith("/spawnchecker")) {
             return;
         }
 
-        if (state.commands().parse(message)) {
+        if (this.state.commands().parse(message)) {
             info.cancel();
-            log.debug("cancel '/spawnchecker' command chat.");
+            System.out.println("cancel '/spawnchecker' command chat.");
         }
     }
 
-    private void onWorldLoad(WorldEvent.Load event) {
-        state.loadWorld(event.getWorld());
+    public void onWorldLoad(ClientWorld world) {
+        this.state.loadWorld(world);
     }
 
-    private void onWorldUnload(WorldEvent.Unload event) {
-        state.unloadWorld(event.getWorld());
+    public void onWorldUnload(ClientWorld world) {
+        this.state.unloadWorld(world);
     }
 
     // endregion
 
     // region [Forge] Tick/Render events
 
-    private void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == Phase.START) {
-            state.onTickStart();
-        }
-        if (event.phase == Phase.END && state.started()) {
-            profiler.startClientTick();
-            state.onTickEnd();
-            profiler.endClientTick();
-        }
+    public void onStartClientTick(MinecraftClient client) {
+        state.onTickStart();
     }
 
-    private void onRenderTick(TickEvent.RenderTickEvent event) {
-        if (event.phase == Phase.END && state.started()) {
-            profiler.startRenderHud();
-            state.renderHud(event.renderTickTime);
-            profiler.endRenderHud();
-        }
+    public void onEndClientTick(MinecraftClient client) {
+        profiler.startClientTick();
+        state.onTickEnd();
+        profiler.endClientTick();
     }
 
-    private void onRenderWorldLast(RenderWorldLastEvent event) {
+    // CustomInGameHud
+    public void onRenderTick(float renderTickTime) {
+        profiler.startRenderHud();
+        state.renderHud(renderTickTime);
+        profiler.endRenderHud();
+    }
+
+    // CustomGameRenderer
+    public void onRenderWorldLast(WorldRenderer worldRenderer, float partialTicks, MatrixStack matrixStack) {
         if (state.started()) {
             profiler.startRenderMarker();
-            state.modeState().renderMarkers(event.getContext(), event.getPartialTicks(), event.getMatrixStack());
+            state.modeState().renderMarkers(worldRenderer, partialTicks, matrixStack);
             profiler.endRenderMarker();
         }
     }

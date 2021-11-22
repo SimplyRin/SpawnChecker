@@ -13,7 +13,7 @@ public class CustomClientPlayerEntity {
     @Inject(method = "sendChatMessage", at = @At("HEAD"), cancellable = true)
     public void onSendChatMessage(String message, CallbackInfo info) {
         if (message != null && message.startsWith("/")) {
-            SpawnChecker.instance().onGuiOpenEvent(message, info);
+            SpawnChecker.instance().onClientChat(message, info);
         }
     }
 

@@ -29,7 +29,7 @@ public final class PresetModeConfig {
     PresetModeConfig(@NonNull ConfigHolder holder) {
         this.holder = holder;
 
-        drawGuideline = holder.config().getBoolean(PATH + ".drawGuideline");
+        drawGuideline = holder.config().getBoolean(PATH + ".drawGuideline", false);
     }
 
     // region [preset_mode] guideline

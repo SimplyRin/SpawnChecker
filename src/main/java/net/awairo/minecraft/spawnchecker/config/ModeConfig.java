@@ -37,11 +37,11 @@ public final class ModeConfig {
     ModeConfig(@NonNull ConfigHolder holder) {
         this.holder = holder;
 
-        selectedModeNameValue = holder.config().getString(PATH + ".selectedMode");
-        checkIntervalValue = holder.config().getInt(PATH + ".scan.interval");
-        horizontalRangeValue = holder.config().getInt(PATH + ".scan.horizontalRange");
-        verticalRangeValue = holder.config().getInt(PATH + ".scan.verticalRange");
-        brightnessValue = holder.config().getInt(PATH + ".marker.brightness");
+        selectedModeNameValue = holder.config().getString(PATH + ".selectedMode", "spawnchecker.mode.spawnchecker");
+        checkIntervalValue = holder.config().getInt(PATH + ".scan.interval", 500);
+        horizontalRangeValue = holder.config().getInt(PATH + ".scan.horizontalRange", 3);
+        verticalRangeValue = holder.config().getInt(PATH + ".scan.verticalRange", 5);
+        brightnessValue = holder.config().getInt(PATH + ".marker.brightness", 0);
     }
 
     // region Selected mode name

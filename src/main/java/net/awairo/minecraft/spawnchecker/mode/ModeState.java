@@ -174,8 +174,8 @@ public class ModeState {
 
         this.tickCount = tickCount;
         PlayerPos.of(minecraft).ifPresent(playerPos -> {
-            val beforeMode = modeList.current();
-            val state = new ModeStateSnapshot();
+            var beforeMode = modeList.current();
+            var state = new ModeStateSnapshot();
             if (modeList.updateList(playerPos, state).changed()) {
                 log.info("mode changed. {} -> {}", beforeMode, modeList.current());
 

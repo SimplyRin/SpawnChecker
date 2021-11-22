@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import net.awairo.minecraft.spawnchecker.mc.KeyModifier;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraftforge.client.settings.KeyModifier;
 import org.lwjgl.glfw.GLFW;
 
 import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;

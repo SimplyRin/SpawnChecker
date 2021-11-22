@@ -24,7 +24,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import net.awairo.minecraft.spawnchecker.api.Color;
 
 import lombok.val;
-import lombok.var;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

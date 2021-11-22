@@ -32,8 +32,8 @@ public final class KeyConfig {
     KeyConfig(@NonNull ConfigHolder holder) {
         this.holder = holder;
 
-        repeatDelayValue = holder.config().getInt(PATH + ".repeatDelay");
-        repeatRateValue = holder.config().getInt(PATH + ".repeatRate");
+        repeatDelayValue = holder.config().getInt(PATH + ".repeatDelay", 500);
+        repeatRateValue = holder.config().getInt(PATH + ".repeatRate", 150);
     }
 
     // region [key binding] RepeatDelay

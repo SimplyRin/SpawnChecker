@@ -52,7 +52,7 @@ public final class SpawnCheckerConfig {
         holder.config().set(SpawnChecker.MOD_ID, "\n SpawnChecker configurations.\n\n   https://github.com/alalwww/SpawnChecker");
 
         enabledValue = holder.config().getBoolean("enabled", true);
-        usingHandsValue = holder.config().getString("usingHands");
+        usingHandsValue = holder.config().getString("usingHands", "BOTH");
 
         hudConfig = new HudConfig(holder);
         keyConfig = new KeyConfig(holder);

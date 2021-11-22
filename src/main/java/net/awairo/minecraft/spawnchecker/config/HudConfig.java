@@ -34,9 +34,9 @@ public final class HudConfig {
     HudConfig(@NonNull ConfigHolder holder) {
         this.holder = holder;
 
-        showDurationValue = holder.config().getLong(PATH + ".showDuration");
-        xOffsetValue = holder.config().getInt(PATH + ".xOffset");
-        yOffsetValue = holder.config().getInt(PATH + ".topOffset");
+        showDurationValue = holder.config().getLong(PATH + ".showDuration", 5000);
+        xOffsetValue = holder.config().getInt(PATH + ".xOffset", 0);
+        yOffsetValue = holder.config().getInt(PATH + ".topOffset", 0);
     }
 
     // region [hud] HudShowDuration

@@ -6,10 +6,10 @@
   "mixins": [
   ],
   "client": [
+    "CustomClientPlayerEntity",
+    "CustomGameRenderer",
     "CustomInGameHud",
-    "CustomClientPlayerEntiry",
-    "CustomClientPlayNetHandler",
-    "CustomLivingRenderer"
+    "CustomMinecraftClient"
   ],
   "injectors": {
     "defaultRequire": 1

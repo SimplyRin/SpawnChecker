@@ -73,7 +73,8 @@ public interface Renderer {
     }
 
     default void begin(int glMode, VertexFormat format) {
-        buffer().begin(glMode, format);
+        // buffer().begin(glMode, format);
+        buffer().begin(VertexFormat.DrawMode.LINES, format);
     }
 
     void addVertex(double x, double y, double z);

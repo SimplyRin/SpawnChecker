@@ -67,10 +67,10 @@ final class SpawnCheckerState {
     SpawnCheckerState(MinecraftClient minecraft, SpawnCheckerConfig config) {
         this.minecraft = minecraft;
         this.config = config;
-        hudRenderer = new HudRendererImpl(minecraft, config);
-        modeState = new ModeState(minecraft, config, hudRenderer::setData);
-        keyBindingStates = new KeyBindingState(modeState, config);
-        commands = new SpawnCheckerCommands(config);
+        this.hudRenderer = new HudRendererImpl(minecraft, config);
+        this.modeState = new ModeState(minecraft, config, this.hudRenderer::setData);
+        this.keyBindingStates = new KeyBindingState(this.modeState, config);
+        this.commands = new SpawnCheckerCommands(config);
     }
 
     void initialize() {

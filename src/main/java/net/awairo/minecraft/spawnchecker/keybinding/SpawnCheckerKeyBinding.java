@@ -22,9 +22,9 @@ package net.awairo.minecraft.spawnchecker.keybinding;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.awairo.minecraft.spawnchecker.mc.KeyModifier;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraftforge.client.settings.KeyModifier;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -48,21 +48,9 @@ public final class SpawnCheckerKeyBinding extends KeyBinding {
     private long pressTime = 0L;
     private long lastCountedUpTime = 0L;
 
-    private SpawnCheckerKeyBinding(
-        @NonNull KeyBindingState state,
-        @NonNull String description,
-        @NonNull KeyModifier keyModifier,
-        int keyCode,
-        int ordinal
-    ) {
-        super(
-            description,
-            SpawnCheckerKeyConflictContext.INSTANCE,
-            keyModifier,
-            InputUtil.Type.KEYSYM,
-            keyCode,
-            CATEGORY
-        );
+    private SpawnCheckerKeyBinding(@NonNull KeyBindingState state, @NonNull String description, @NonNull KeyModifier keyModifier, int keyCode, int ordinal) {
+        // super(description, SpawnCheckerKeyConflictContext.INSTANCE,keyModifier, InputUtil.Type.KEYSYM, keyCode, CATEGORY);
+        super(description, keyCode, CATEGORY);
         this.state = state;
         this.ordinal = ordinal;
     }
@@ -81,7 +69,7 @@ public final class SpawnCheckerKeyBinding extends KeyBinding {
     }
 
     void update(long nowMilliTime) {
-        if (isKeyDown()) {
+        if (isPressed()) {
             if (isBeforePressed()) {
                 pressTime = nowMilliTime - pressStartMillis;
                 if (isRepeated(nowMilliTime)) {

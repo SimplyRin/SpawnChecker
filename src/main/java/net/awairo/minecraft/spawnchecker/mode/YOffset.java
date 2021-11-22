@@ -24,7 +24,7 @@ import java.util.Objects;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SlabBlock;
-import net.minecraft.state.properties.SlabType;
+import net.minecraft.block.enums.SlabType;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

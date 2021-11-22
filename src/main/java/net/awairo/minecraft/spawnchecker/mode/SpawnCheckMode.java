@@ -67,8 +67,8 @@ public class SpawnCheckMode extends SelectableMode {
 
     @Override
     public Stream<Marker> update(Mode.State modeState, PlayerPos playerPos) {
-        val world = modeState.worldClient();
-        val area = new ScanArea(playerPos, modeState.horizontalRange(), modeState.verticalRange());
+        var world = modeState.worldClient();
+        var area = new ScanArea(playerPos, modeState.horizontalRange(), modeState.verticalRange());
 
         // TODO: ネザー、エンド対応
         // if (world.getDimension().isSurfaceWorld()) {
@@ -81,7 +81,7 @@ public class SpawnCheckMode extends SelectableMode {
 
     private Stream<Marker> updateInSurfaceWorld(ClientWorld world, ScanArea area) {
 
-        val markerBuilder = SpawnPointMarker.builder()
+        var markerBuilder = SpawnPointMarker.builder()
             .endermanMarkerColor(Color.ofColorCode("#40FF0064"))
             .zombieSizeMobMarkerColor(Color.ofColorCode("#FFFF6464"))
             .spiderMarkerColor(Color.ofColorCode("#4040ff64"))
