@@ -34,7 +34,7 @@ public class SCRenderSystem {
         RenderSystem.assertThread(RenderSystem::isOnGameThread);
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
 
-        GlStateManager
+        GlStateManager.
         if (red != COLOR.red || green != COLOR.green || blue != COLOR.blue || alpha != COLOR.alpha) {
             COLOR.red = red;
             COLOR.green = green;

@@ -19,51 +19,37 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-
 import lombok.NonNull;
-
-import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
 
 public final class PresetModeConfig {
     private static final String PATH = "preset_mode";
 
-    private final Updater updater;
+    private final ConfigHolder holder;
 
-    PresetModeConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
-        this.updater = updater;
+    PresetModeConfig(@NonNull ConfigHolder holder) {
+        this.holder = holder;
 
-        builder.comment(" Preset mode configurations");
-        builder.push(PATH);
-
-        drawGuideline = builder
-            .comment(
-                " True is drawing spawn check marker guidelines."
-            )
-            .translation(
-                configGuiKey(PATH, "drawGuideline")
-            )
-            .define(
-                "drawGuideline",
-                false
-            );
+        drawGuideline = holder.config().getBoolean(PATH + ".drawGuideline");
     }
 
     // region [preset_mode] guideline
 
-    private final BooleanValue drawGuideline;
+    private boolean drawGuideline;
 
     public boolean drawGuideline() {
-        return drawGuideline.get();
+        return drawGuideline;
     }
 
     public UpdateResult guidelineOn() {
-        return updater.update(drawGuideline, true);
+        this.drawGuideline = true;
+        holder.config().set(PATH + ".drawGuideline", true);
+        return UpdateResult.CHANGED;
     }
 
     public UpdateResult guidelineOff() {
-        return updater.update(drawGuideline, false);
+        this.drawGuideline = false;
+        holder.config().set(PATH + ".drawGuideline", false);
+        return UpdateResult.CHANGED;
     }
 
     // endregion

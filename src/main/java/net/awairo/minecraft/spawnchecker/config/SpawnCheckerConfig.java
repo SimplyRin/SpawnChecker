@@ -22,11 +22,6 @@ package net.awairo.minecraft.spawnchecker.config;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import com.electronwill.nightconfig.core.CommentedConfig;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 
 import net.awairo.minecraft.spawnchecker.SpawnChecker;
 import net.awairo.minecraft.spawnchecker.api.UsingHands;
@@ -39,9 +34,6 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public final class SpawnCheckerConfig {
 
-    @Setter(AccessLevel.PROTECTED)
-    private CommentedConfig underlying;
-
     @Getter
     private final HudConfig hudConfig;
     @Getter
@@ -52,81 +44,61 @@ public final class SpawnCheckerConfig {
     @Getter
     private final PresetModeConfig presetModeConfig;
 
-    public SpawnCheckerConfig(ForgeConfigSpec.Builder builder) {
-        builder.comment(
-            "",
-            " SpawnChecker configurations.",
-            "",
-            "   https://github.com/alalwww/SpawnChecker",
-            ""
-        );
-        builder.push(SpawnChecker.MOD_ID);
+    private final ConfigHolder holder;
 
-        enabledValue = builder
-            .comment(
-                " This value limits the behavior of all the SpawnChecker."
-            )
-            .translation(
-                configGuiKey("enabled")
-            )
-            .define(
-                "enabled",
-                true
-            );
+    public SpawnCheckerConfig(ConfigHolder holder) {
+        this.holder = holder;
 
-        usingHandsValue = builder
-            .comment(
-                " Hands to use for item possession condition.",
-                defaultValue(UsingHands.DEFAULT),
-                allowValues(UsingHands.values())
-            )
-            .translation(
-                configGuiKey("usingHands")
-            )
-            .defineEnum(
-                "usingHands",
-                UsingHands.DEFAULT
-            );
+        holder.config().set(SpawnChecker.MOD_ID, "\n SpawnChecker configurations.\n\n   https://github.com/alalwww/SpawnChecker");
 
-        hudConfig = new HudConfig(this::update, builder);
-        keyConfig = new KeyConfig(this::update, builder);
-        modeConfig = new ModeConfig(this::update, builder);
-        presetModeConfig = new PresetModeConfig(this::update, builder);
+        enabledValue = holder.config().getBoolean("enabled", true);
+        usingHandsValue = holder.config().getString("usingHands");
 
-        builder.pop();
+        hudConfig = new HudConfig(holder);
+        keyConfig = new KeyConfig(holder);
+        modeConfig = new ModeConfig(holder);
+        presetModeConfig = new PresetModeConfig(holder);
     }
 
     // region [config] Enabled
 
-    private final BooleanValue enabledValue;
+    private boolean enabledValue;
 
-    public boolean enabled() { return enabledValue.get(); }
+    public boolean enabled() {
+        return enabledValue;
+    }
 
-    public UpdateResult enable() { return update(enabledValue, true); }
+    public UpdateResult enable() {
+        holder.config().set("enabled", true);
+        this.enabledValue = true;
+        return UpdateResult.CHANGED;
+    }
 
-    public UpdateResult disable() { return update(enabledValue, false); }
+    public UpdateResult disable() {
+        holder.config().set("enabled", false);
+        this.enabledValue = false;
+        return UpdateResult.CHANGED;
+    }
 
     // endregion
 
     // region [config] usingHands
 
-    private final EnumValue<UsingHands> usingHandsValue;
+    private String usingHandsValue;
 
-    public UsingHands usingHand() { return usingHandsValue.get(); }
+    public UsingHands usingHand() {
+        return UsingHands.vOf(this.usingHandsValue);
+    }
 
-    public UpdateResult usingHand(UsingHands value) { return update(usingHandsValue, value); }
+    public UpdateResult usingHand(UsingHands value) {
+        this.usingHandsValue = value.name();
+        holder.config().set("usingHands", value.name());
+        return UpdateResult.CHANGED;
+    }
 
     // endregion
 
     // region utility methods
-
-    private <T> UpdateResult update(ConfigValue<? super T> value, T newValue) {
-        if (underlying != null && !Objects.equals(value.get(), newValue)) {
-            underlying.update(value.getPath(), newValue);
-            return UpdateResult.CHANGED;
-        }
-        return UpdateResult.NO_CHANGED;
-    }
 
     private static String configGuiKey(String key) {
         return String.join(".", SpawnChecker.MOD_ID, "config", key);

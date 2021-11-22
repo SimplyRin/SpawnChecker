@@ -33,4 +33,14 @@ public enum UsingHands {
 
     private final boolean useRightHand;
     private final boolean useLeftHand;
+
+    public static UsingHands vOf(String name) {
+        UsingHands value = null;
+        for (UsingHands v : UsingHands.values()) {
+            if (v.name().equals(name)) {
+                value = v;
+            }
+        }
+        return value;
+    }
 }

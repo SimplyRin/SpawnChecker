@@ -43,6 +43,16 @@ public enum Brightness {
         this.value = value;
     }
 
+    public static Brightness valueOf(int v) {
+        Brightness brightness = null;
+        for (Brightness value : Brightness.values()) {
+            if (value.value == v) {
+                brightness = value;
+            }
+        }
+        return brightness;
+    }
+
     public Brightness next() {
         switch (this) {
             case MINUS_5:

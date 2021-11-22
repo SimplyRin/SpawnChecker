@@ -19,16 +19,31 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
-import net.minecraftforge.fml.config.ModConfig;
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.awairo.minecraft.spawnchecker.rin.Config;
+import net.md_5.bungee.config.Configuration;
+
+import java.io.File;
 
 @RequiredArgsConstructor
 public final class ConfigHolder {
 
-    private final SpawnCheckerConfig config;
+    private final File file;
 
-    public void loadConfig(ModConfig modConfig) {
-        config.underlying(modConfig.getConfigData());
+    @Getter
+    private Configuration config;
+
+    public Configuration loadConfig() {
+        if (this.config == null) {
+            this.config = Config.getConfig(this.file);
+        }
+        return this.config;
     }
+
+    public void saveConfig() {
+        Config.saveConfig(this.config, this.file);
+    }
+
 }

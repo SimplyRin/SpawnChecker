@@ -19,38 +19,24 @@
 
 package net.awairo.minecraft.spawnchecker;
 
+import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
-import net.minecraftforge.client.event.ClientChatEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.config.ModConfig.Type;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLFingerprintViolationEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import net.awairo.minecraft.spawnchecker.config.ConfigHolder;
-import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
 import net.awairo.minecraft.spawnchecker.mode.SpawnCheckMode;
 
 import lombok.extern.log4j.Log4j2;
-import lombok.val;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.io.File;
+
+@Getter
 @Log4j2
 // @Mod(SpawnChecker.MOD_ID)
-public final class SpawnChecker {
+public class SpawnChecker {
+
+    @Getter
+    private static SpawnChecker instance;
 
     public static final String MOD_ID = "spawnchecker";
 
@@ -58,16 +44,20 @@ public final class SpawnChecker {
     private final ConfigHolder configHolder;
     private final SpawnCheckerState state;
 
+    private File configFile;
+
     public SpawnChecker() {
+        instance = this;
+
+        File folder = new File("config");
+        this.configFile = new File(folder, "config.yml");
+
         log.info("SpawnChecker initializing.");
 
         var minecraft = MinecraftClient.getInstance();
         this.profiler = new WrappedProfiler(minecraft.getProfiler());
 
-        var pair = new ForgeConfigSpec.Builder().configure(SpawnCheckerConfig::new);
-        var config = pair.getLeft();
-        var configSpec = pair.getRight();
-        this.configHolder = new ConfigHolder(config);
+        this.configHolder = new ConfigHolder(configFile);
 
         this.state = new SpawnCheckerState(minecraft, config);
 
@@ -82,20 +72,9 @@ public final class SpawnChecker {
         ModLoadingContext.get()
             .registerConfig(Type.CLIENT, configSpec);
 
-        var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-
-        var forgeBus = MinecraftForge.EVENT_BUS;
-
         // region Add event listeners
         // Mod lifecycle events
-        modBus.addListener(this::onFMLCommonSetup);
         modBus.addListener(this::onFMLClientSetup);
-        modBus.addListener(this::onFMLDedicatedServerSetup);
-        modBus.addListener(this::onFMLLoadComplete);
-        modBus.addListener(this::onFMLFingerprintViolation);
-
-        // Mod config events
-        modBus.addListener(this::onModConfigLoading);
 
         // World load/unload
         forgeBus.addListener(this::onWorldLoad);
@@ -115,53 +94,27 @@ public final class SpawnChecker {
 
     // region [FML] Mod lifecycle events
 
-    private void onFMLCommonSetup(FMLCommonSetupEvent event) {
-        log.info("onFMLCommonSetup({})", event);
-    }
-
     private void onFMLClientSetup(FMLClientSetupEvent event) {
         log.info("[spawnchecker] onFMLClientSetup({})", event);
         this.state.keyBindingStates().bindings()
             .forEach(ClientRegistry::registerKeyBinding);
     }
 
-    private void onFMLDedicatedServerSetup(@SuppressWarnings("unused") FMLDedicatedServerSetupEvent event) {
-        // not supported server mod
-        log.warn("SpawnChecker is unsupported the Minecraft server.");
-        throw new SpawnCheckerException("SpawnChecker is unsupported the Minecraft server.");
-    }
-
-    private void onFMLLoadComplete(FMLLoadCompleteEvent event) {
-        state.initialize();
-        log.info("[spawnchecker] onFMLLoadComplete({})", event);
-    }
-
-    private void onFMLFingerprintViolation(FMLFingerprintViolationEvent event) {
-        // TODO: 未実装っぽい。
-        log.error("[spawnchecker] onFMLFingerprintViolation({})", event);
-        throw new SpawnCheckerException("FMLFingerprintViolation");
-    }
-
     // endregion
 
     // region [FML] Mod config events
-
-    private void onModConfigLoading(ModConfig.Loading event) {
-        log.info("SpawnChecker config loading.");
-        configHolder.loadConfig(event.getConfig());
-        log.info("SpawnChecker config loaded.");
-    }
 
     // endregion
 
     // region [Forge] World events
 
-    private void onGuiOpenEvent(ClientChatEvent event) {
-        if (!event.getMessage().startsWith("/spawnchecker"))
+    public void onGuiOpenEvent(String message, CallbackInfo info) {
+        if (!message.startsWith("/spawnchecker")) {
             return;
+        }
 
-        if (state.commands().parse(event.getMessage())) {
-            event.setCanceled(true);
+        if (state.commands().parse(message)) {
+            info.cancel();
             log.debug("cancel '/spawnchecker' command chat.");
         }
     }

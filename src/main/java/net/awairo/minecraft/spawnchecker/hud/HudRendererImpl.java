@@ -76,33 +76,33 @@ public final class HudRendererImpl implements HudRenderer {
     @Override
     public void addVertex(double x, double y, double z) {
         buffer()
-            .pos(x, y, z)
-            .endVertex();
+            .vertex(x, y, z)
+            .next();
     }
 
     @Override
     public void addVertex(double x, double y, double z, float u, float v) {
         buffer()
-            .pos(x, y, z)
-            .tex(u, v)
-            .endVertex();
+            .vertex(x, y, z)
+            .texture(u, v)
+            .next();
     }
 
     @Override
     public void addVertex(double x, double y, double z, Color color) {
         buffer()
-            .pos(x, y, z)
+            .vertex(x, y, z)
             .color(color.red(), color.green(), color.blue(), color.alpha())
-            .endVertex();
+            .next();
     }
 
     @Override
     public void addVertex(double x, double y, double z, float u, float v, Color color) {
         buffer()
-            .pos(x, y, z)
+            .vertex(x, y, z)
             .color(color.red(), color.green(), color.blue(), color.alpha())
-            .tex(u, v)
-            .endVertex();
+            .texture(u, v)
+            .next();
     }
 
     public void setData(HudData hudData) {

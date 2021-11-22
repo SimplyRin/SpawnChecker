@@ -19,10 +19,6 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-import net.minecraftforge.common.ForgeConfigSpec.LongValue;
-
 import net.awairo.minecraft.spawnchecker.api.HudData.ShowDuration;
 import net.awairo.minecraft.spawnchecker.hud.HudOffset;
 
@@ -33,85 +29,47 @@ import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
 public final class HudConfig {
     private static final String PATH = "hud";
 
-    private final Updater updater;
+    private final ConfigHolder holder;
 
-    HudConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
-        this.updater = updater;
+    HudConfig(@NonNull ConfigHolder holder) {
+        this.holder = holder;
 
-        builder.comment(" HUD configurations");
-        builder.push(PATH);
-
-        showDurationValue = builder
-            .comment(
-                " Hud show duration. (ms)",
-                defaultMinMax(ShowDuration.DEFAULT.milliSeconds(), ShowDuration.MIN_VALUE, ShowDuration.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "showDuration")
-            )
-            .defineInRange(
-                "showDuration",
-                ShowDuration.DEFAULT::milliSeconds, ShowDuration.MIN_VALUE, ShowDuration.MAX_VALUE
-            );
-
-        xOffsetValue = builder
-            .comment(
-                " HUD position x topOffset.",
-                defaultMinMax(HudOffset.DEFAULT_VALUE, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "xOffset")
-            )
-            .defineInRange(
-                "xOffset",
-                HudOffset.X.DEFAULT::value, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE
-            );
-
-        yOffsetValue = builder
-            .comment(
-                " HUD position y topOffset.",
-                defaultMinMax(HudOffset.Y.DEFAULT.value(), HudOffset.MIN_VALUE, HudOffset.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "topOffset")
-            )
-            .defineInRange(
-                "topOffset",
-                HudOffset.Y.DEFAULT::value, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE
-            );
+        showDurationValue = holder.config().getLong(PATH + ".showDuration");
+        xOffsetValue = holder.config().getInt(PATH + ".xOffset");
+        yOffsetValue = holder.config().getInt(PATH + ".topOffset");
     }
 
     // region [hud] HudShowDuration
 
-    private final LongValue showDurationValue;
+    private final long showDurationValue;
     private ShowDuration showDurationCache = null;
 
     public ShowDuration showDuration() {
         var cache = showDurationCache;
-        if (cache == null || cache.milliSeconds() != showDurationValue.get())
-            cache = showDurationCache = new ShowDuration(showDurationValue.get());
+        if (cache == null || cache.milliSeconds() != showDurationValue)
+            cache = showDurationCache = new ShowDuration(showDurationValue);
         return cache;
     }
 
     // endregion
 
-    private final IntValue xOffsetValue;
+    private final int xOffsetValue;
     private HudOffset.X xOffsetCache;
 
     public HudOffset.X xOffset() {
         var cache = xOffsetCache;
-        if (cache == null || cache.value() != xOffsetValue.get())
-            cache = xOffsetCache = HudOffset.xOf(xOffsetValue.get());
+        if (cache == null || cache.value() != xOffsetValue)
+            cache = xOffsetCache = HudOffset.xOf(xOffsetValue);
         return cache;
     }
 
-    private final IntValue yOffsetValue;
+    private final int yOffsetValue;
     private HudOffset.Y yOffsetCache;
 
     public HudOffset.Y yOffset() {
         var cache = yOffsetCache;
-        if (cache == null || cache.value() != yOffsetValue.get())
-            cache = yOffsetCache = HudOffset.yOf(yOffsetValue.get());
+        if (cache == null || cache.value() != yOffsetValue)
+            cache = yOffsetCache = HudOffset.yOf(yOffsetValue);
         return cache;
     }
 }

@@ -19,65 +19,32 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-
 import net.awairo.minecraft.spawnchecker.keybinding.RepeatDelay;
 import net.awairo.minecraft.spawnchecker.keybinding.RepeatRate;
 
 import lombok.NonNull;
 
-import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
-
 public final class KeyConfig {
     private static final String PATH = "key";
 
-    private final Updater updater;
+    private final ConfigHolder holder;
 
-    KeyConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
-        this.updater = updater;
+    KeyConfig(@NonNull ConfigHolder holder) {
+        this.holder = holder;
 
-        builder.comment(" Key binding configurations.");
-        builder.push(PATH);
-
-        repeatDelayValue = builder
-            .comment(
-                " Key repeat delay. (ms)",
-                defaultMinMax(RepeatDelay.DEFAULT.milliSeconds(), RepeatDelay.MIN, RepeatDelay.MAX)
-            )
-            .translation(
-                configGuiKey(PATH, "repeatDelay")
-            )
-            .defineInRange(
-                "repeatDelay",
-                RepeatDelay.DEFAULT::milliSeconds, RepeatDelay.MIN, RepeatDelay.MAX
-            );
-
-        repeatRateValue = builder
-            .comment(
-                " Key repeat rate. (ms)",
-                defaultMinMax(RepeatRate.DEFAULT.milliSeconds(), RepeatRate.MIN, RepeatRate.MAX)
-            )
-            .translation(
-                configGuiKey(PATH, "repeatRate")
-            )
-            .defineInRange(
-                "repeatRate",
-                RepeatRate.DEFAULT::milliSeconds, RepeatRate.MIN, RepeatRate.MAX
-            );
-
-        builder.pop();
+        repeatDelayValue = holder.config().getInt(PATH + ".repeatDelay");
+        repeatRateValue = holder.config().getInt(PATH + ".repeatRate");
     }
 
     // region [key binding] RepeatDelay
 
-    private final IntValue repeatDelayValue;
+    private final int repeatDelayValue;
     private RepeatDelay repeatDelayCache;
 
     public RepeatDelay repeatDelay() {
         var cache = repeatDelayCache;
-        if (cache == null || cache.milliSeconds() != repeatDelayValue.get())
-            repeatDelayCache = cache = RepeatDelay.ofMilliSeconds(repeatDelayValue.get());
+        if (cache == null || cache.milliSeconds() != repeatDelayValue)
+            repeatDelayCache = cache = RepeatDelay.ofMilliSeconds(repeatDelayValue);
         return cache;
     }
 
@@ -85,13 +52,13 @@ public final class KeyConfig {
 
     // region [key binding] RepeatRate
 
-    private final IntValue repeatRateValue;
+    private final int repeatRateValue;
     private RepeatRate repeatRateCache;
 
     public RepeatRate repeatRate() {
         var cache = repeatRateCache;
-        if (cache == null || cache.milliSeconds() != repeatRateValue.get())
-            repeatRateCache = cache = RepeatRate.ofMilliSeconds(repeatRateValue.get());
+        if (cache == null || cache.milliSeconds() != repeatRateValue)
+            repeatRateCache = cache = RepeatRate.ofMilliSeconds(repeatRateValue);
         return cache;
     }
 
