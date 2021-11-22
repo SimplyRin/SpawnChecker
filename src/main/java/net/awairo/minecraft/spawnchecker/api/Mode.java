@@ -25,16 +25,16 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
 import lombok.NonNull;
 import lombok.Value;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 
 public interface Mode {
     Name name();
-    ResourceLocation icon();
+    Identifier icon();
     default Priority priority() { return Priority.DEFAULT; }
 
     boolean isActive();
@@ -95,10 +95,10 @@ public interface Mode {
 
     final class Name implements Comparable<Name> {
 
-        private final TranslationTextComponent textComponent;
+        private final TranslatableText textComponent;
 
-        public ITextComponent textComponent() {
-            return textComponent;
+        public LiteralText textComponent() {
+            return new LiteralText(this.textComponent.asString());
         }
 
         public String translationKey() {
@@ -106,7 +106,7 @@ public interface Mode {
         }
 
         public Name(@NonNull String translationKey) {
-            this.textComponent = new TranslationTextComponent(translationKey);
+            this.textComponent = new TranslatableText(translationKey);
         }
 
         @Override

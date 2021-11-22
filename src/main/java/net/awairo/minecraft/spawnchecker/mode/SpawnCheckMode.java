@@ -22,13 +22,13 @@ package net.awairo.minecraft.spawnchecker.mode;
 import java.util.LinkedList;
 import java.util.stream.Stream;
 
+import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.EntitySpawnPlacementRegistry.PlacementType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 
@@ -45,8 +45,8 @@ import lombok.val;
 @Log4j2
 public class SpawnCheckMode extends SelectableMode {
     public static final String TRANSLATION_KEY = "spawnchecker.mode.spawnchecker";
-    static final Name NAME = new Name(TRANSLATION_KEY);
-    private static final Priority PRIORITY = new Priority(100);
+    static final Mode.Name NAME = new Mode.Name(TRANSLATION_KEY);
+    private static final Mode.Priority PRIORITY = new Mode.Priority(100);
 
     private final PresetModeConfig config;
 
@@ -66,13 +66,13 @@ public class SpawnCheckMode extends SelectableMode {
     }
 
     @Override
-    public Stream<Marker> update(State modeState, PlayerPos playerPos) {
+    public Stream<Marker> update(Mode.State modeState, PlayerPos playerPos) {
         val world = modeState.worldClient();
         val area = new ScanArea(playerPos, modeState.horizontalRange(), modeState.verticalRange());
 
         // TODO: ネザー、エンド対応
         // if (world.getDimension().isSurfaceWorld()) {
-        if (world.func_239132_a_() instanceof net.minecraft.client.world.DimensionRenderInfo.Overworld) {
+        if (world.getRegistryKey().equals(ClientWorld.OVERWORLD)) {
             return updateInSurfaceWorld(world, area);
         }
 
@@ -90,20 +90,19 @@ public class SpawnCheckMode extends SelectableMode {
             .drawGuideline(config.drawGuideline());
 
         return area.xzStream().parallel().flatMap(xz -> {
-            val placeType = PlacementType.ON_GROUND;
-            val posIterator = xz.posStream().iterator();
+            var posIterator = xz.posStream().iterator();
 
             if (!posIterator.hasNext())
                 return Stream.empty();
 
-            val lightLevelThreshold = 7;
+            var lightLevelThreshold = 7;
             BlockPos underLoc = null, loc;
             BlockState underBlock = null, locBlock;
             FluidState locFluid;
 
             boolean underIsSpawnableBlock = false;
 
-            val list = new LinkedList<Marker>();
+            var list = new LinkedList<Marker>();
 
             // 現在位置が空気で、下に上面が平らのブロックがある座標を下から上に向かって探索
             // TODO: クソ雑ロジック見直す
@@ -113,7 +112,7 @@ public class SpawnCheckMode extends SelectableMode {
 
                 // region 足元のブロックがスポーン可能であることの判定
                 // 上面が平らならスポーンできるブロック
-                if (locBlock.isSolid()) {
+                if (locBlock.isOpaque()) {
                     // 岩盤とバリアブロックにはスポーンできない
                     underIsSpawnableBlock =
                         locBlock.getBlock() != Blocks.BEDROCK && locBlock.getBlock() != Blocks.BARRIER;
@@ -136,7 +135,7 @@ public class SpawnCheckMode extends SelectableMode {
                 // region 現在の座標はなにもない空気ブロックであることの判定
                 // WorldEntitySpawner#func_234968_a_[isValidEmptySpawnBlock](IBlockReader, BlockPos, BlockState, FluidState, EntityType) と同様の判定
 
-                if (locBlock.isOpaqueCube(world, loc) || locBlock.canProvidePower() || locBlock.isIn(BlockTags.RAILS)) {
+                if (locBlock.isOpaqueFullCube(world, loc) || locBlock.isIn(BlockTags.RAILS)) {
                     underLoc = loc;
                     underBlock = locBlock;
                     continue;
@@ -152,7 +151,7 @@ public class SpawnCheckMode extends SelectableMode {
 
                 // region 明るさ判定
                 // net.minecraft.entity.monster.MonsterEntity#isValidLightLevel()
-                if (world.getLightFor(LightType.BLOCK, loc) > lightLevelThreshold) {
+                if (world.getLightLevel(LightType.BLOCK, loc) > lightLevelThreshold) {
                     underLoc = loc;
                     underBlock = locBlock;
                     continue;
@@ -160,7 +159,7 @@ public class SpawnCheckMode extends SelectableMode {
                 // endregion
 
                 if (EntitySize.ENDERMAN.isNotCollidingWithoutOtherEntityCollision(world, loc) &&
-                    underBlock.canCreatureSpawn(world, underLoc, placeType, EntityType.ENDERMAN)) {
+                    underBlock.allowsSpawning(world, underLoc, EntityType.ENDERMAN)) {
                     list.add(markerBuilder.buildEndermanMarker(loc, YOffset.of(locBlock, underBlock)));
                     underLoc = loc;
                     underBlock = locBlock;
@@ -168,7 +167,7 @@ public class SpawnCheckMode extends SelectableMode {
                 }
 
                 if (EntitySize.ZOMBIE.isNotCollidingWithoutOtherEntityCollision(world, loc) &&
-                    underBlock.canCreatureSpawn(world, underLoc, placeType, EntityType.ZOMBIE)) {
+                    underBlock.allowsSpawning(world, underLoc, EntityType.ZOMBIE)) {
                     // ゾンビOK
                     list.add(markerBuilder.buildZombieSizeMobMarker(loc, YOffset.of(locBlock, underBlock)));
                     underLoc = loc;
@@ -177,7 +176,7 @@ public class SpawnCheckMode extends SelectableMode {
                 }
 
                 if (EntitySize.SPIDER.isNotCollidingWithoutOtherEntityCollision(world, loc) &&
-                    underBlock.canCreatureSpawn(world, underLoc, placeType, EntityType.SPIDER)) {
+                    underBlock.allowsSpawning(world, underLoc, EntityType.SPIDER)) {
                     // クモOK
                     list.add(markerBuilder.buildSpiderMarker(loc, YOffset.of(locBlock, underBlock)));
                     underLoc = loc;

@@ -19,11 +19,6 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-
 import net.awairo.minecraft.spawnchecker.api.Brightness;
 import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.api.ScanRange.Horizontal;

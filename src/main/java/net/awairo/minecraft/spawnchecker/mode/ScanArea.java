@@ -26,15 +26,14 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import net.minecraft.util.CuboidBlockIterator;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.CubeCoordinateIterator;
 
 import net.awairo.minecraft.spawnchecker.api.PlayerPos;
 import net.awairo.minecraft.spawnchecker.api.ScanRange;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import lombok.val;
 
 @Value
 final class ScanArea {
@@ -46,13 +45,13 @@ final class ScanArea {
     private final ScanRange.Vertical vRange;
 
     Stream<XZ> xzStream() {
-        val minX = playerPos.blockPos().getX() - hRange.value();
-        val maxX = playerPos.blockPos().getX() + hRange.value();
-        val y = playerPos.blockPos().getY();
-        val maxZ = playerPos.blockPos().getZ() + hRange.value();
-        val minZ = playerPos.blockPos().getZ() - hRange.value();
-        val estSize = (hRange.value() * 2 + 1) ^ 2;
-        val posIter = new BlockPosIterator(new CubeCoordinateIterator(minX, y, minZ, maxX, y, maxZ));
+        var minX = playerPos.blockPos().getX() - hRange.value();
+        var maxX = playerPos.blockPos().getX() + hRange.value();
+        var y = playerPos.blockPos().getY();
+        var maxZ = playerPos.blockPos().getZ() + hRange.value();
+        var minZ = playerPos.blockPos().getZ() - hRange.value();
+        var estSize = (hRange.value() * 2 + 1) ^ 2;
+        var posIter = new BlockPosIterator(new CuboidBlockIterator(minX, y, minZ, maxX, y, maxZ));
 
         return StreamSupport
             .stream(Spliterators.spliterator(posIter, estSize, CHARACTERISTICS), PARALLEL)
@@ -61,11 +60,11 @@ final class ScanArea {
 
     @RequiredArgsConstructor
     private static final class BlockPosIterator implements Iterator<BlockPos> {
-        private final CubeCoordinateIterator coords;
+        private final CuboidBlockIterator coords;
 
         @Override
         public boolean hasNext() {
-            return coords.hasNext();
+            return coords.step();
         }
 
         @Override

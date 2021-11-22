@@ -19,12 +19,11 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import net.minecraft.util.ResourceLocation;
-
 import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.hud.HudIconResource;
 
 import lombok.NonNull;
+import net.minecraft.util.Identifier;
 
 abstract class PresetMode<T extends PresetMode<T>> implements Mode {
     private final Name name;
@@ -48,7 +47,7 @@ abstract class PresetMode<T extends PresetMode<T>> implements Mode {
     }
 
     @Override
-    public ResourceLocation icon() {
+    public Identifier icon() {
         return icon.location();
     }
 

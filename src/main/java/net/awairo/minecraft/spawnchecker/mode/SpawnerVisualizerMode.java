@@ -28,8 +28,8 @@ import net.awairo.minecraft.spawnchecker.hud.HudIconResource;
 
 public class SpawnerVisualizerMode extends ConditionalMode {
     static final String TRANSLATION_KEY = "spawnchecker.mode.spawnerVisualizer";
-    static final Name NAME = new Name(TRANSLATION_KEY);
-    static final Priority PRIORITY = new Priority(100);
+    static final Mode.Name NAME = new Mode.Name(TRANSLATION_KEY);
+    static final Mode.Priority PRIORITY = new Mode.Priority(100);
 
     public SpawnerVisualizerMode() {
         super(NAME, HudIconResource.SPAWNER_VISUALIZER, PRIORITY);
@@ -56,7 +56,7 @@ public class SpawnerVisualizerMode extends ConditionalMode {
     }
 
     @Override
-    public Stream<Marker> update(State modeState, PlayerPos playerPos) {
+    public Stream<Marker> update(Mode.State modeState, PlayerPos playerPos) {
         return Stream.empty();
     }
 }

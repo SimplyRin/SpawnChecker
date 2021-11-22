@@ -22,16 +22,17 @@ package net.awairo.minecraft.spawnchecker.mode.marker;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.util.ResourceLocation;
+import net.awairo.minecraft.spawnchecker.api.Marker;
+import net.awairo.minecraft.spawnchecker.mode.YOffset;
+import net.awairo.minecraft.spawnchecker.mode.marker.model.GuidelineModel;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import net.awairo.minecraft.spawnchecker.SpawnChecker;
 import net.awairo.minecraft.spawnchecker.api.Color;
-import net.awairo.minecraft.spawnchecker.api.Marker;
 import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
-import net.awairo.minecraft.spawnchecker.mode.YOffset;
-import net.awairo.minecraft.spawnchecker.mode.marker.model.GuidelineModel;
 import net.awairo.minecraft.spawnchecker.mode.marker.model.SpawnPointModel;
+import net.awairo.minecraft.spawnchecker.mc.SCRenderSystem;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -39,7 +40,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-import lombok.val;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class SpawnPointMarker implements Marker {
@@ -47,8 +47,8 @@ public class SpawnPointMarker implements Marker {
     enum Texture {
         DEFAULT, ENDERMAN, GHAST, SLIME, SPIDER;
         @Getter
-        private final ResourceLocation location =
-            new ResourceLocation(SpawnChecker.MOD_ID, "textures/markers/spawn_marker_" + name().toLowerCase() + ".png");
+        private final Identifier location =
+            new Identifier(SpawnChecker.MOD_ID, "textures/markers/spawn_marker_" + name().toLowerCase() + ".png");
     }
 
     public static Builder builder() { return new Builder(); }
@@ -110,17 +110,17 @@ public class SpawnPointMarker implements Marker {
 
     @Override
     public void draw(MarkerRenderer renderer) {
-        if (renderer.renderManager().info == null)
+        if (renderer.renderManager().camera == null)
             return;
 
-        val viewerPos = renderer.renderManager().info.getProjectedView();
+        var viewerPos = renderer.renderManager().camera;
         renderer.push();
         {
-            color.setToColor4F(RenderSystem::color4f);
+            color.setToColor4F(SCRenderSystem::color4f);
             renderer.translate(
-                ((double) pos.getX()) - viewerPos.x,
-                ((double) pos.getY()) - viewerPos.y - 1d, // 1ブロック下げる
-                ((double) pos.getZ()) - viewerPos.z
+                ((double) pos.getX()) - viewerPos.getBlockPos().getX(),
+                ((double) pos.getY()) - viewerPos.getBlockPos().getY() - 1d, // 1ブロック下げる
+                ((double) pos.getZ()) - viewerPos.getBlockPos().getZ()
             );
             markerModel.draw(renderer);
 
@@ -132,11 +132,11 @@ public class SpawnPointMarker implements Marker {
 
         renderer.push();
         {
-            color.setToColor4F(RenderSystem::color4f);
+            color.setToColor4F(SCRenderSystem::color4f);
             renderer.translate(
-                ((double) pos.getX()) - viewerPos.x,
-                ((double) pos.getY()) - viewerPos.y,
-                ((double) pos.getZ()) - viewerPos.z
+                ((double) pos.getX()) - viewerPos.getBlockPos().getX(),
+                ((double) pos.getY()) - viewerPos.getBlockPos().getY(),
+                ((double) pos.getZ()) - viewerPos.getBlockPos().getZ()
             );
             guidelineModel.draw(renderer);
         }

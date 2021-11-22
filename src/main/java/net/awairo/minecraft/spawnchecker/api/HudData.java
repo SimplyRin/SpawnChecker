@@ -19,14 +19,13 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Identifier;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -52,15 +51,15 @@ public interface HudData {
         protected static final double ICON_SIZE = 16d;
 
         @NonNull
-        private final ITextComponent text;
+        private final LiteralText text;
         @NonNull
-        private final ResourceLocation icon;
+        private final Identifier icon;
         @NonNull
         private final ShowDuration showDuration;
         @NonNull
         private final Color baseColor;
 
-        public Simple(ITextComponent text, ResourceLocation icon, ShowDuration showDuration) {
+        public Simple(LiteralText text, Identifier icon, ShowDuration showDuration) {
             this(text, icon, showDuration, BASE_COLOR);
         }
 
@@ -90,7 +89,7 @@ public interface HudData {
         }
 
         protected float computeAlpha(long elapsedMillis) {
-            val rate = showDuration.progressRate(elapsedMillis);
+            var rate = showDuration.progressRate(elapsedMillis);
             if (rate <= 0.05f)
                 return Math.min(rate * 20, 1f);
             if (rate >= 0.9f)
@@ -103,13 +102,13 @@ public interface HudData {
             RenderSystem.enableTexture();
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(
-                SourceFactor.SRC_ALPHA.param, DestFactor.ONE_MINUS_SRC_ALPHA.param,
-                SourceFactor.ONE.param, DestFactor.ZERO.param
+                GlStateManager.SrcFactor.SRC_ALPHA.value, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA.value,
+                GlStateManager.SrcFactor.ONE.value, GlStateManager.DstFactor.ZERO.value
             );
         }
 
         @SuppressWarnings("Duplicates")
-        protected void drawIcon(MatrixStack stack, ResourceLocation icon, HudRenderer renderer, Color color) {
+        protected void drawIcon(MatrixStack stack, Identifier icon, HudRenderer renderer, Color color) {
             final double xMin, yMin, xMax, yMax, z;
             final float uMin, uMax, vMin, vMax;
             xMin = yMin = z = 0d;
@@ -117,7 +116,7 @@ public interface HudData {
             uMin = vMin = 0f;
             uMax = vMax = 1f;
             renderer.bindTexture(icon);
-            renderer.beginQuads(DefaultVertexFormats.POSITION_COLOR_TEX);
+            renderer.beginQuads(VertexFormats.POSITION_COLOR_TEXTURE); // POSITION_COLOR_TEX
             renderer.addVertex(xMin, yMin, z, uMin, vMin, color);
             renderer.addVertex(xMin, yMax, z, uMin, vMax, color);
             renderer.addVertex(xMax, yMax, z, uMax, vMax, color);
@@ -125,11 +124,11 @@ public interface HudData {
             renderer.draw();
         }
 
-        protected void drawText(MatrixStack stack, ITextComponent text, HudRenderer renderer, Color color) {
+        protected void drawText(MatrixStack stack, LiteralText text, HudRenderer renderer, Color color) {
             if (isTransparentText(color))
                 return;
 
-            renderer.fontRenderer().drawStringWithShadow(stack, text.getString(), Simple.TEXT_X, Simple.TEXT_Y, color.toInt());
+            renderer.fontRenderer().drawWithShadow(stack, text.getString(), Simple.TEXT_X, Simple.TEXT_Y, color.toInt());
         }
 
         // alpha = 3 以下だと不透明で描画されたためスキップした

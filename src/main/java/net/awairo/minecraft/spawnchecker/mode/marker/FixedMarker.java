@@ -22,13 +22,12 @@ package net.awairo.minecraft.spawnchecker.mode.marker;
 import javax.annotation.Nonnull;
 import com.google.common.base.MoreObjects;
 
-import net.minecraft.util.math.vector.Vector3d;
-
 import net.awairo.minecraft.spawnchecker.api.Marker;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.minecraft.client.util.math.Vector3d;
 
 @Getter
 @EqualsAndHashCode

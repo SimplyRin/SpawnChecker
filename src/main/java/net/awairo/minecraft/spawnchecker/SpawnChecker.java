@@ -19,6 +19,7 @@
 
 package net.awairo.minecraft.spawnchecker;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -40,8 +41,6 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-import net.minecraft.client.Minecraft;
-
 import net.awairo.minecraft.spawnchecker.config.ConfigHolder;
 import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
 import net.awairo.minecraft.spawnchecker.mode.SpawnCheckMode;
@@ -50,7 +49,7 @@ import lombok.extern.log4j.Log4j2;
 import lombok.val;
 
 @Log4j2
-@Mod(SpawnChecker.MOD_ID)
+// @Mod(SpawnChecker.MOD_ID)
 public final class SpawnChecker {
 
     public static final String MOD_ID = "spawnchecker";
@@ -62,12 +61,12 @@ public final class SpawnChecker {
     public SpawnChecker() {
         log.info("SpawnChecker initializing.");
 
-        val minecraft = Minecraft.getInstance();
+        var minecraft = MinecraftClient.getInstance();
         this.profiler = new WrappedProfiler(minecraft.getProfiler());
 
-        val pair = new ForgeConfigSpec.Builder().configure(SpawnCheckerConfig::new);
-        val config = pair.getLeft();
-        val configSpec = pair.getRight();
+        var pair = new ForgeConfigSpec.Builder().configure(SpawnCheckerConfig::new);
+        var config = pair.getLeft();
+        var configSpec = pair.getRight();
         this.configHolder = new ConfigHolder(config);
 
         this.state = new SpawnCheckerState(minecraft, config);
@@ -83,9 +82,9 @@ public final class SpawnChecker {
         ModLoadingContext.get()
             .registerConfig(Type.CLIENT, configSpec);
 
-        val modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        var modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        val forgeBus = MinecraftForge.EVENT_BUS;
+        var forgeBus = MinecraftForge.EVENT_BUS;
 
         // region Add event listeners
         // Mod lifecycle events

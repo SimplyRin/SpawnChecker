@@ -22,10 +22,10 @@ package net.awairo.minecraft.spawnchecker.keybinding;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+
+import net.minecraft.client.option.KeyBinding;
 import net.minecraftforge.client.settings.KeyModifier;
 import org.lwjgl.glfw.GLFW;
-
-import net.minecraft.client.settings.KeyBinding;
 
 import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
 import net.awairo.minecraft.spawnchecker.mode.ModeState;

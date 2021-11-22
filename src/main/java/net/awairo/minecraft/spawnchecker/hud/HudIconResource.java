@@ -19,7 +19,7 @@
 
 package net.awairo.minecraft.spawnchecker.hud;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 import net.awairo.minecraft.spawnchecker.SpawnChecker;
 
@@ -41,9 +41,9 @@ public enum HudIconResource {
     private static final String DIRECTORY_NAME = "textures/hud";
 
     @Getter
-    private final ResourceLocation location;
+    private final Identifier location;
 
     HudIconResource(String name) {
-        location = new ResourceLocation(NAMESPACE, DIRECTORY_NAME + "/" + name);
+        location = new Identifier(NAMESPACE, DIRECTORY_NAME + "/" + name);
     }
 }

@@ -27,7 +27,6 @@ import net.awairo.minecraft.spawnchecker.api.HudData.ShowDuration;
 import net.awairo.minecraft.spawnchecker.hud.HudOffset;
 
 import lombok.NonNull;
-import lombok.var;
 
 import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
 

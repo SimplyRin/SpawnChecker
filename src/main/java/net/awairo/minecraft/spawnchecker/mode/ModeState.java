@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import com.mojang.blaze3d.matrix.MatrixStack;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 
 import net.awairo.minecraft.spawnchecker.api.Brightness;
@@ -52,7 +52,7 @@ import lombok.val;
 public class ModeState {
     private final ModeList modeList = new ModeList();
 
-    private final Minecraft minecraft;
+    private final MinecraftClient minecraft;
     private final SpawnCheckerConfig config;
     private final Consumer<HudData> hudDataRegistry;
     private final UpdateTimer timer;
@@ -91,7 +91,7 @@ public class ModeState {
         return config.modeConfig().brightness();
     }
 
-    public ModeState(Minecraft minecraft, SpawnCheckerConfig config, Consumer<HudData> hudDataRegistry) {
+    public ModeState(MinecraftClient minecraft, SpawnCheckerConfig config, Consumer<HudData> hudDataRegistry) {
         this.minecraft = minecraft;
         this.config = config;
         this.hudDataRegistry = hudDataRegistry;
@@ -194,12 +194,12 @@ public class ModeState {
         if (worldClientNotLoaded())
             return;
 
-        val renderer = new MyMarkerRendererImpl(
+        var renderer = new MyMarkerRendererImpl(
             worldRenderer,
             partialTicks,
             matrixStack,
             minecraft.getTextureManager(),
-            minecraft.getRenderManager()
+            minecraft.getEntityRenderDispatcher()
         );
 
         markers.forEach(m -> m.draw(renderer));

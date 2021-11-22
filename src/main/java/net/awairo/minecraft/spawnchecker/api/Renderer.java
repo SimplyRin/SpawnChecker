@@ -19,15 +19,14 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.ResourceLocation;
-
 public interface Renderer {
-    void bindTexture(ResourceLocation texture);
+    void bindTexture(Identifier texture);
 
     default Tessellator tessellator() {
         return Tessellator.getInstance();

@@ -23,9 +23,10 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.ResourceLocation;
+import net.awairo.minecraft.spawnchecker.mc.SCRenderSystem;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
 import net.awairo.minecraft.spawnchecker.api.Color;
@@ -42,7 +43,7 @@ import lombok.val;
 @Log4j2
 @RequiredArgsConstructor
 public final class HudRendererImpl implements HudRenderer {
-    private final Minecraft minecraft;
+    private final MinecraftClient minecraft;
     private final SpawnCheckerConfig config;
 
     private static final long UNDEFINED = -1;
@@ -63,13 +64,13 @@ public final class HudRendererImpl implements HudRenderer {
     }
 
     @Override
-    public FontRenderer fontRenderer() {
-        return minecraft.fontRenderer;
+    public TextRenderer fontRenderer() {
+        return minecraft.textRenderer;
     }
 
     @Override
-    public void bindTexture(ResourceLocation texture) {
-        minecraft.textureManager.bindTexture(texture);
+    public void bindTexture(Identifier texture) {
+        minecraft.getTextureManager().bindTexture(texture);
     }
 
     @Override
@@ -115,26 +116,27 @@ public final class HudRendererImpl implements HudRenderer {
     }
 
     public void render(int tickCount, float partialTicks) {
-        if (hudData == null || minecraft.isGamePaused())
+        if (hudData == null || minecraft.isPaused())
             return;
 
         this.tickCount = tickCount;
         this.partialTicks = partialTicks;
-        val now = Util.milliTime();
+        long now = Util.nanoTimeSupplier.getAsLong() / 1000000L;
         if (showStartTime == UNDEFINED) {
             showStartTime = now;
         }
-        val h = minecraft.getMainWindow().getScaledHeight();
-        val w = minecraft.getMainWindow().getScaledWidth();
-        RenderSystem.pushMatrix();
-        RenderSystem.translated(
+        var h = minecraft.getWindow().getScaledHeight();
+        var w = minecraft.getWindow().getScaledWidth();
+
+        SCRenderSystem.pushMatrix();
+        SCRenderSystem.translated(
             w / 20 + config.hudConfig().xOffset().value(),
             h / 3 + config.hudConfig().yOffset().value(),
             0d
         );
-        RenderSystem.scalef(1.0f, 1.0f, 1f);
-        val hudVisibility = hudData.draw(this, now - showStartTime);
-        RenderSystem.popMatrix();
+        SCRenderSystem.scalef(1.0f, 1.0f, 1f);
+        var hudVisibility = hudData.draw(this, now - showStartTime);
+        SCRenderSystem.popMatrix();
 
         if (hudVisibility == Visibility.HIDE)
             removeData();

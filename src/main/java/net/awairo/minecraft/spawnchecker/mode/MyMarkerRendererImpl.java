@@ -19,13 +19,12 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.texture.TextureManager;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 
 import net.awairo.minecraft.spawnchecker.api.Color;
 import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
@@ -33,6 +32,7 @@ import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
+import net.minecraft.util.math.Quaternion;
 
 @Value
 final class MyMarkerRendererImpl implements MarkerRenderer {
@@ -41,43 +41,43 @@ final class MyMarkerRendererImpl implements MarkerRenderer {
     @Getter(AccessLevel.PRIVATE)
     private final MatrixStack matrixStack;
     private final TextureManager textureManager;
-    private final EntityRendererManager renderManager;
+    private final EntityRenderDispatcher renderManager;
 
     @Override
-    public void bindTexture(ResourceLocation texture) {
+    public void bindTexture(Identifier texture) {
         textureManager.bindTexture(texture);
     }
 
     @Override
     public void addVertex(double x, double y, double z) {
         buffer()
-            .pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z)
-            .endVertex();
+            .vertex(matrixStack.peek().getModel(), (float) x, (float) y, (float) z)
+            .next();
     }
 
     @Override
     public void addVertex(double x, double y, double z, float u, float v) {
         buffer()
-            .pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z)
-            .tex(u, v)
-            .endVertex();
+            .vertex(matrixStack.peek().getModel(), (float) x, (float) y, (float) z)
+            .texture(u, v)
+            .next();
     }
 
     @Override
     public void addVertex(double x, double y, double z, Color color) {
         buffer()
-            .pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z)
+            .vertex(matrixStack.peek().getModel(), (float) x, (float) y, (float) z)
             .color(color.red(), color.green(), color.blue(), color.alpha())
-            .endVertex();
+            .next();
     }
 
     @Override
     public void addVertex(double x, double y, double z, float u, float v, Color color) {
         buffer()
-            .pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z)
-            .tex(u, v)
+            .vertex(matrixStack.peek().getModel(), (float) x, (float) y, (float) z)
+            .texture(u, v)
             .color(color.red(), color.green(), color.blue(), color.alpha())
-            .endVertex();
+            .next();
     }
 
     @Override
@@ -102,11 +102,11 @@ final class MyMarkerRendererImpl implements MarkerRenderer {
 
     @Override
     public void rotate(Quaternion quaternion) {
-        matrixStack.rotate(quaternion);
+        matrixStack.multiply(quaternion);
     }
 
     @Override
     public void clear() {
-        matrixStack.clear();
+        matrixStack.isEmpty();
     }
 }

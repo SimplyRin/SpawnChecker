@@ -22,13 +22,14 @@ package net.awairo.minecraft.spawnchecker.mode;
 import java.util.stream.Stream;
 
 import net.awairo.minecraft.spawnchecker.api.Marker;
+import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.api.PlayerPos;
 import net.awairo.minecraft.spawnchecker.hud.HudIconResource;
 
 public class SlimeCheckMode extends SelectableMode {
     static final String TRANSLATION_KEY = "spawnchecker.mode.slimeChunkVisualizer";
-    static final Name NAME = new Name(TRANSLATION_KEY);
-    static final Priority PRIORITY = new Priority(50);
+    static final Mode.Name NAME = new Mode.Name(TRANSLATION_KEY);
+    static final Mode.Priority PRIORITY = new Mode.Priority(50);
 
     public SlimeCheckMode() {
         super(NAME, HudIconResource.SLIME_CHUNK_CHECKER, PRIORITY);
@@ -45,7 +46,7 @@ public class SlimeCheckMode extends SelectableMode {
     }
 
     @Override
-    public Stream<Marker> update(State modeState, PlayerPos playerPos) {
+    public Stream<Marker> update(Mode.State modeState, PlayerPos playerPos) {
         return Stream.empty();
     }
 }

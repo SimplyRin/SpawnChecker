@@ -19,15 +19,17 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
+import net.minecraft.block.BedBlock;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.item.SwordItem;
+import net.minecraft.structure.rule.AxisAlignedLinearPosRuleTest;
+import net.minecraft.util.math.*;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.World;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -46,26 +48,16 @@ enum EntitySize {
 
     // EntityLiving#isNotColliding(IWorldReaderBase)
     boolean isNotColliding(ClientWorld worldIn, BlockPos pos) {
-        val bb = boundingBox(pos);
-        return !worldIn.containsAnyLiquid(bb)
-            && worldIn.hasNoCollisions(null, bb)
-            && worldIn.checkNoEntityCollision(null, VoxelShapes.create(bb));
+        var bb = new Box(pos);
+        return !worldIn.containsFluid(bb)
+            && worldIn.isSpaceEmpty(null, bb)
+            && worldIn.intersectsEntities(null, VoxelShapes.cuboidUnchecked(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ));
     }
 
     boolean isNotCollidingWithoutOtherEntityCollision(ClientWorld worldIn, BlockPos pos) {
-        val bb = boundingBox(pos);
-        return !worldIn.containsAnyLiquid(bb)
-            && worldIn.hasNoCollisions(null, bb);
+        var bb = new Box(pos);
+        return !worldIn.containsFluid(bb)
+            && worldIn.isSpaceEmpty(null, bb);
     }
 
-    AxisAlignedBB boundingBox(BlockPos pos) {
-        return new AxisAlignedBB(
-            (double) pos.getX(),
-            (double) pos.getY(),
-            (double) pos.getZ(),
-            (double) pos.getX() + width,
-            (double) pos.getY() + height,
-            (double) pos.getZ() + width
-        );
-    }
 }

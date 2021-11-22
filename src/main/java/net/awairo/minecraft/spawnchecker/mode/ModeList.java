@@ -33,7 +33,6 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import lombok.var;
 
 @Log4j2
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
@@ -104,7 +103,7 @@ final class ModeList {
         }
 
         if (current.isSelectable()) {
-            val foundMode = findModeThatCanBeActivated(playerPos, state);
+            var foundMode = findModeThatCanBeActivated(playerPos, state);
             if (foundMode.isPresent()) {
                 pushConditionalMode(foundMode.get(), state);
                 return Result.CHANGED;
@@ -125,7 +124,7 @@ final class ModeList {
 
     void selectBy(Mode.Name name) {
         // noinspection OptionalGetWithoutIsPresent
-        val found = selectableModes.stream()
+        var found = selectableModes.stream()
             .filter(mode -> mode.name().equals(name))
             .findFirst()
             .orElseGet(() -> selectableModes.stream()

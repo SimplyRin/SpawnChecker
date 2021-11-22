@@ -20,7 +20,6 @@
 package net.awairo.minecraft.spawnchecker;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -33,16 +32,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.multiplayer.ClientSuggestionProvider;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.command.CommandSource;
+import net.minecraft.text.BaseText;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
@@ -60,15 +57,15 @@ final class SpawnCheckerCommands {
 
     private final SpawnCheckerConfig config;
 
-    private static final ITextComponent TO_ENABLE =
-        new TranslationTextComponent("spawnchecker.command.message.toEnabled");
-    private static final ITextComponent TO_DISABLE =
-        new TranslationTextComponent("spawnchecker.command.message.toDisabled");
+    private static final BaseText TO_ENABLE =
+        new TranslatableText("spawnchecker.command.message.toEnabled");
+    private static final BaseText TO_DISABLE =
+        new TranslatableText("spawnchecker.command.message.toDisabled");
 
-    private static final ITextComponent GUIDELINE_ON =
-        new TranslationTextComponent("spawnchecker.command.message.guidelineOn");
-    private static final ITextComponent GUIDELINE_OFF =
-        new TranslationTextComponent("spawnchecker.command.message.guidelineOff");
+    private static final BaseText GUIDELINE_ON =
+        new TranslatableText("spawnchecker.command.message.guidelineOn");
+    private static final BaseText GUIDELINE_OFF =
+        new TranslatableText("spawnchecker.command.message.guidelineOff");
 
     private final CommandDispatcher<Source> dispatcher = new CommandDispatcher<>();
 
@@ -81,9 +78,9 @@ final class SpawnCheckerCommands {
 
     @SuppressWarnings("unchecked")
     void registerTo(@NonNull ClientPlayerEntity player) {
-        this.commandSource = new Source(player.connection.getSuggestionProvider());
-        player.connection.getCommandDispatcher()
-            .register((LiteralArgumentBuilder<ISuggestionProvider>) (LiteralArgumentBuilder<?>) builder());
+        this.commandSource = new Source(player.networkHandler.getCommandSource());
+        player.networkHandler.getCommandDispatcher()
+            .register((LiteralArgumentBuilder<CommandSource>) (LiteralArgumentBuilder<?>) builder());
     }
 
     boolean parse(String message) {
@@ -109,7 +106,7 @@ final class SpawnCheckerCommands {
             ;
     }
 
-    private int success(CommandContext<Source> ctx, Runnable runnable, ITextComponent message) {
+    private int success(CommandContext<Source> ctx, Runnable runnable, BaseText message) {
         log.debug("do executes: {}, {}", ctx, message);
         runnable.run();
         ctx.getSource().sendFeedback(message);
@@ -121,12 +118,12 @@ final class SpawnCheckerCommands {
     }
 
     @RequiredArgsConstructor
-    private static final class Source implements ISuggestionProvider {
-        private final ClientSuggestionProvider underlying;
+    private static final class Source implements CommandSource {
+        private final CommandSource underlying;
 
-        void sendFeedback(ITextComponent message) {
-            if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.sendMessage(message, Util.DUMMY_UUID);
+        void sendFeedback(BaseText message) {
+            if (MinecraftClient.getInstance().player != null) {
+                MinecraftClient.getInstance().player.sendMessage(message, false);
             }
         }
 
@@ -137,53 +134,44 @@ final class SpawnCheckerCommands {
         }
 
         @Override
-        public Collection<String> getTargetedEntity() {
-            return underlying.getTargetedEntity();
-        }
-
-        @Override
-        public Collection<Coordinates> func_217294_q() {
-            return underlying.func_217294_q();
-        }
-
-        @Override
-        public Collection<Coordinates> func_217293_r() {
-            return underlying.func_217293_r();
-        }
-
-        @Override
-        public DynamicRegistries func_241861_q() {
-            return underlying.func_241861_q();
-        }
-
-        @Override
         @Nonnull
         public Collection<String> getTeamNames() {
             return underlying.getTeamNames();
         }
 
         @Override
-        @Nonnull
-        public Collection<ResourceLocation> getSoundResourceLocations() {
-            return underlying.getSoundResourceLocations();
+        public Collection<Identifier> getSoundIds() {
+            return underlying.getSoundIds();
         }
 
         @Override
-        @Nonnull
-        public Stream<ResourceLocation> getRecipeResourceLocations() {
-            return underlying.getRecipeResourceLocations();
+        public Stream<Identifier> getRecipeIds() {
+            return underlying.getRecipeIds();
         }
 
         @Override
-        @Nonnull
-        public CompletableFuture<Suggestions> getSuggestionsFromServer(
-            @Nonnull CommandContext<ISuggestionProvider> context, @Nonnull SuggestionsBuilder suggestionsBuilder) {
-            return underlying.getSuggestionsFromServer(context, suggestionsBuilder);
+        public CompletableFuture<Suggestions> getCompletions(CommandContext<CommandSource> context, SuggestionsBuilder builder) {
+            return underlying.getCompletions(context, builder);
         }
 
         @Override
-        public Set<RegistryKey<World>> func_230390_p_() {
-            return underlying.func_230390_p_();
+        public Set<RegistryKey<World>> getWorldKeys() {
+            return underlying.getWorldKeys();
+        }
+
+        @Override
+        public DynamicRegistryManager getRegistryManager() {
+            return underlying.getRegistryManager();
+        }
+
+        @Nonnull
+        public Collection<Identifier> getSoundResourceLocations() {
+            return MinecraftClient.getInstance().getSoundManager().getKeys();
+        }
+
+        @Nonnull
+        public Stream<Identifier> getRecipeResourceLocations() {
+            return MinecraftClient.getInstance().player.networkHandler.getRecipeManager().keys();
         }
 
         @Override

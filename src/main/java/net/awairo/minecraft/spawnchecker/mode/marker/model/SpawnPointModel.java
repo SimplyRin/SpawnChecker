@@ -20,13 +20,11 @@
 package net.awairo.minecraft.spawnchecker.mode.marker.model;
 
 import com.google.common.base.MoreObjects;
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
-
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
 
 import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
 import net.awairo.minecraft.spawnchecker.mode.YOffset;
@@ -39,7 +37,7 @@ public class SpawnPointModel implements MarkerModel {
 
     private static final double BLOCK_SIZE = 1.0d;
 
-    private final ResourceLocation texture;
+    private final Identifier texture;
     private final double markerSize;
     private final double offset;
     private final YOffset yOffset;
@@ -51,7 +49,7 @@ public class SpawnPointModel implements MarkerModel {
     private final double iMin;
     private final double iMax;
 
-    public SpawnPointModel(@NonNull ResourceLocation texture, double markerSize, double offset, YOffset yOffset) {
+    public SpawnPointModel(@NonNull Identifier texture, double markerSize, double offset, YOffset yOffset) {
         this.texture = texture;
         this.markerSize = markerSize;
         this.offset = offset;
@@ -72,14 +70,14 @@ public class SpawnPointModel implements MarkerModel {
     public void draw(MarkerRenderer renderer) {
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(
-            SourceFactor.SRC_ALPHA.param, DestFactor.ONE_MINUS_SRC_ALPHA.param,
-            SourceFactor.ONE.param, DestFactor.ZERO.param
+            GlStateManager.SrcFactor.SRC_ALPHA.value, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA.value,
+            GlStateManager.SrcFactor.ONE.value, GlStateManager.DstFactor.ZERO.value
         );
         RenderSystem.enableTexture();
 
         renderer.bindTexture(texture);
 
-        renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        renderer.begin(GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE);
 
         float minU = 0.0f;
         float maxU = 0.5f;
